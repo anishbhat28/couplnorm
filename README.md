@@ -97,6 +97,20 @@ Baselines share one interface: construct, `.fit(data)` where applicable, then
 assumes marginal mode independence, so it collapses C to ≈ 0 regardless of the
 target — the concrete demonstration of why C is worth measuring.
 
+## Case study
+
+The φ⁴ lattice study that motivates C is:
+
+> A. Bhat, R. Ide, Z. Zhao. *When Independent Gaussian Models Break Down:
+> Characterizing Regime-Dependent Modeling Failures in φ⁴ Theory.*
+> arXiv:[2605.01145](https://arxiv.org/abs/2605.01145).
+
+That paper's reported C values (C(N=32) ≈ 0.06 up to C(N=128) ≈ 0.2, strong
+coupling saturating near 0.17–0.18) are computed on the **unique rfft modes** —
+the `real_fft=True` default here. The full FFT would inflate every value to the
+~0.7 conjugate-symmetry floor (see above), so the published magnitudes are only
+consistent with the unique-mode convention.
+
 ## Citation
 
 See [`CITATION.cff`](CITATION.cff).

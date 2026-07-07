@@ -22,3 +22,19 @@ keywords:
   - spectral-analysis
   - lattice-field-theory
   - scientific-ml
+references:
+  - type: article
+    title: >-
+      When Independent Gaussian Models Break Down: Characterizing
+      Regime-Dependent Modeling Failures in phi^4 Theory
+    authors:
+      - family-names: Bhat
+        given-names: Anish
+      - family-names: Ide
+        given-names: Ryo
+      - family-names: Zhao
+        given-names: Zihan
+    identifiers:
+      - type: other
+        value: "arXiv:2605.01145"
+        description: arXiv preprint
