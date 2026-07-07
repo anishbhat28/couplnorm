@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use couplnorm in your research, please cite it as below."
+title: "couplnorm: Normalized 4th-order coupling metrics and losses for generative model evaluation"
+abstract: >-
+  couplnorm implements the normalized off-diagonal coupling diagnostic C, a
+  4th-order spectral statistic that measures joint coupling between Fourier
+  modes beyond what marginals capture. It exposes C as both an evaluation
+  metric (CouplingMetric) and a differentiable training loss (CouplingLoss)
+  for generative models on Fourier-decomposable data.
+type: software
+authors:
+  - family-names: Bhat
+    given-names: Anish
+version: 0.1.0
+license: MIT
+repository-code: "https://github.com/anishbhat28/couplnorm"
+keywords:
+  - generative-models
+  - normalizing-flows
+  - pytorch
+  - coupling
+  - spectral-analysis
+  - lattice-field-theory
+  - scientific-ml

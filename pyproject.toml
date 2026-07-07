@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "couplnorm"
+version = "0.1.0"
+description = "Normalized 4th-order coupling metrics and losses for generative model evaluation."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Anish Bhat"}]
+dependencies = ["torch>=2.0"]
+keywords = [
+    "generative-models", "normalizing-flows", "pytorch",
+    "coupling", "spectral-analysis", "model-evaluation",
+    "non-gaussianity", "fourth-order-statistics",
+    "lattice-field-theory", "scientific-ml",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "matplotlib"]
+
+[project.urls]
+Homepage = "https://github.com/anishbhat28/couplnorm"
+Issues = "https://github.com/anishbhat28/couplnorm/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
