@@ -9,6 +9,12 @@ by construction.
 
 > Marginal Gaussianity does not imply joint independence. **C measures the gap.**
 
+![C across distributions with matched marginals](assets/coupling_hook.png)
+
+All three distributions above have (near-)identical per-mode marginals; a power
+spectrum cannot tell them apart. C rises from ~0.04 to ~0.82 as joint 4th-order
+coupling is switched on. (Reproduce with `notebooks/01_basic_usage.ipynb`.)
+
 Given field samples, `couplnorm` computes the covariance of the per-mode spectral
 energies `E_k = |φ̃_k|²` and reduces it to a single scale-free number:
 

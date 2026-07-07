@@ -29,7 +29,8 @@ env/
 .idea/
 .vscode/
 
-# Data artifacts (samples, cached targets)
+# Data artifacts (samples, cached targets) — large blobs stay local, but the
+# tests/data/ format docs are tracked.
 *.pt
 *.npz
-data/
+/data/
