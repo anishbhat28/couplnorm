@@ -1,10 +1,15 @@
 # couplnorm
 
+[![PyPI version](https://img.shields.io/pypi/v/couplnorm.svg)](https://pypi.org/project/couplnorm/)
+[![Python versions](https://img.shields.io/pypi/pyversions/couplnorm.svg)](https://pypi.org/project/couplnorm/)
+[![Tests](https://github.com/anishbhat28/couplnorm/actions/workflows/tests.yml/badge.svg)](https://github.com/anishbhat28/couplnorm/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 **Normalized 4th-order coupling metrics and losses for generative model evaluation.**
 
 `couplnorm` implements the normalized off-diagonal coupling diagnostic **C**, a
-4th-order spectral statistic that measures *joint* coupling between Fourier modes
-— structure that second-order metrics (power spectrum, two-point function) miss
+4th-order spectral statistic that measures *joint* coupling between Fourier modes —
+structure that second-order metrics (power spectrum, two-point function) miss
 by construction.
 
 > Marginal Gaussianity does not imply joint independence. **C measures the gap.**
@@ -15,8 +20,8 @@ All three distributions above have (near-)identical per-mode marginals; a power
 spectrum cannot tell them apart. C rises from ~0.04 to ~0.82 as joint 4th-order
 coupling is switched on. (Reproduce with `notebooks/01_basic_usage.ipynb`.)
 
-Given field samples, `couplnorm` computes the covariance of the per-mode spectral
-energies `E_k = |φ̃_k|²` and reduces it to a single scale-free number:
+Given field samples, `couplnorm` computes the covariance of the per-mode
+spectral energies `E_k = |φ̃_k|²` and reduces it to a single scale-free number:
 
 ```
 C = ‖Σ − diag(Σ)‖_F / ‖Σ‖_F
@@ -25,13 +30,34 @@ C = ‖Σ − diag(Σ)‖_F / ‖Σ‖_F
 `C = 0` means the spectral energies are pairwise uncorrelated (a Gaussian /
 free-field signature); `C → 1` means off-diagonal coupling dominates.
 
+## When to use it
+
+- Evaluating normalizing flows, VAEs, or other generative models on
+  spectrally-decomposable data (lattice field configurations, PDE trajectories,
+  audio frames, time series).
+- Diagnosing when an "almost-Gaussian" model matches the power spectrum but
+  misses joint 4th-order structure.
+- Training generative models to match a target coupling structure directly,
+  rather than hoping it falls out of likelihood maximization.
+- As a physics-aware quality metric for evaluating quantized or otherwise
+  approximated scientific ML surrogates.
+
 ## Install
 
 ```bash
-pip install -e .[dev]     # from a checkout
+pip install couplnorm
 ```
 
 Requires Python ≥ 3.10 and PyTorch ≥ 2.0.
+
+For development:
+
+```bash
+git clone https://github.com/anishbhat28/couplnorm
+cd couplnorm
+pip install -e ".[dev]"
+pytest tests/ -v
+```
 
 ## Quickstart
 
@@ -45,29 +71,30 @@ print(coupling_from_samples(phi).item())        # ~0.03  (independent modes)
 
 # As a streaming nn.Module metric
 metric = CouplingMetric(mode="running", momentum=0.02, n_modes=32 // 2 + 1)
-for chunk in loader:                            # doctest: +SKIP
+for chunk in stream:
     metric(chunk)
 print(metric.compute().item())
 
-# As a training loss that matches a reference distribution's coupling
-loss_fn = CouplingLoss.from_data(reference_data, target_type="matrix")  # doctest: +SKIP
-loss = loss_fn(generated_batch)                 # doctest: +SKIP
+# As a differentiable training loss matching a reference distribution
+loss_fn = CouplingLoss.from_data(reference_data, target_type="matrix")
+loss = loss_fn(generated_batch)
+loss.backward()
 ```
 
 ## Three forms
 
-| Object                  | Use                                                            |
-| ----------------------- | ------------------------------------------------------------- |
-| `coupling_from_samples` | one-line functional helper — just want the number             |
-| `CouplingMetric`        | `nn.Module` metric; batch **or** streaming (running EMA) mode  |
+| Object                  | Use                                                                                    |
+| ----------------------- | -------------------------------------------------------------------------------------- |
+| `coupling_from_samples` | one-line functional helper — just want the number                                      |
+| `CouplingMetric`        | `nn.Module` metric; batch **or** streaming (running EMA) mode                          |
 | `CouplingLoss`          | differentiable loss: match a covariance, match a scalar C, or minimize C (DeCov-style) |
 
 ## The FFT convention (important)
 
 For a **real** field of length `N`, the DFT is conjugate-symmetric
-(`φ̃_k = φ̃*_{N−k}`), so `|φ̃_k|² = |φ̃_{N−k}|²` *exactly*. Feeding the full FFT into
-C creates `N − 2` off-diagonal entries that equal diagonal entries before any
-physics enters, inflating C by an analytical floor of
+(`φ̃_k = φ̃*_{N−k}`), so `|φ̃_k|² = |φ̃_{N−k}|²` *exactly*. Feeding the full FFT
+into C creates `N − 2` off-diagonal entries that equal diagonal entries before
+any physics enters, inflating C by an analytical floor of
 
 ```
 C_floor = sqrt((N − 2) / (2N − 2)) ≈ 0.7
@@ -99,11 +126,11 @@ target — the concrete demonstration of why C is worth measuring.
 
 ## Case study
 
-The φ⁴ lattice study that motivates C is:
+The lattice φ⁴ study that motivates C:
 
 > A. Bhat, R. Ide, Z. Zhao. *When Independent Gaussian Models Break Down:
 > Characterizing Regime-Dependent Modeling Failures in φ⁴ Theory.*
-> arXiv:[2605.01145](https://arxiv.org/abs/2605.01145).
+> Conference on Physics and AI (PAI 2026), Stanford University.
 
 That paper's reported C values (C(N=32) ≈ 0.06 up to C(N=128) ≈ 0.2, strong
 coupling saturating near 0.17–0.18) are computed on the **unique rfft modes** —
@@ -111,9 +138,38 @@ the `real_fft=True` default here. The full FFT would inflate every value to the
 ~0.7 conjugate-symmetry floor (see above), so the published magnitudes are only
 consistent with the unique-mode convention.
 
+## Related work
+
+The pattern C measures — normalized off-diagonal covariance as a diagnostic for
+joint dependence beyond marginals — has cousins in several fields.
+[DeCov](https://arxiv.org/abs/1511.06068) (Cogswell et al., 2016) is the
+unnormalized activation-covariance analog used as a regularizer in deep
+learning. Cosmological analyses of the matter power spectrum covariance
+(Scoccimarro et al. 1999; Rimes & Hamilton 2006) have used the same off-diagonal
+structure as a probe of non-Gaussianity from nonlinear evolution.
+[Noise correlations](https://www.nature.com/articles/nrn1888) in neural
+population coding (Averbeck, Latham, Pouget 2006) are the closest disciplinary
+analog: the same three-regime structure of joint dependence limiting decoding
+beyond what marginal tuning curves predict.
+
 ## Citation
 
-See [`CITATION.cff`](CITATION.cff).
+```bibtex
+@inproceedings{bhat2026coupling,
+  title     = {When Independent Gaussian Models Break Down:
+               Characterizing Regime-Dependent Modeling Failures in
+               $\phi^4$ Theory},
+  author    = {Bhat, Anish and Ide, Ryo and Zhao, Zihan},
+  booktitle = {Conference on Physics and AI (PAI 2026)},
+  year      = {2026},
+  address   = {Stanford University}
+}
+```
+
+## Contributing
+
+Issues and pull requests welcome. Please open an issue before implementing
+significant changes so we can discuss scope.
 
 ## License
 
